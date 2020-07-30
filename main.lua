@@ -1,35 +1,31 @@
-require "oop"
-
-require "maigames_screen"
-
-lastdt = 0
-
-newTestClass = testclass:new("hola!")
+local class = require "lib/lua-oop"
 
 function love.load()
-    
-   love.graphics.setBackgroundColor(255,255,255)
-   love.window.setTitle("Maistronaut")
+
+    love.graphics.setBackgroundColor(0, 0, 0)
+    love.window.setTitle("Maistronaut")
+
+    current_stage = require("stages/maigames_stage"):new()
 
 end
 
 function love.update(dt)
 
-    lastdt = dt
+    current_stage:_update(dt)
 
 end
 
 function love.draw()
 
-    love.graphics.setColor(0, 0, 0, 255)
-    love.graphics.print(tostring(testclass:sayHi()), 600, 300)
+    current_stage:draw()
 
 end
 
-function love.keypressed (key, scancode, isrepeat)
+function love.keypressed(key, scancode, isrepeat)
 
+    -- Toggle fullscreen with F11 key
     if key == "f11" and not isrepeat then
         love.window.setFullscreen(not love.window.getFullscreen())
     end
-    
+
 end

@@ -1,10 +1,10 @@
-local middleclass = {
-  _VERSION     = 'middleclass v4.1.1',
-  _DESCRIPTION = 'Object Orientation for Lua',
-  _URL         = 'https://github.com/kikito/middleclass',
+local oop = {
+  _VERSION     = 'lua-oop v1.0.0',
+  _DESCRIPTION = 'Object oriented programming for Lua. Fork of kikito/middleclass',
+  _URL         = 'https://github.com/MaiGames/lua-oop',
   _LICENSE     = [[
     MIT LICENSE
-    Copyright (c) 2011 Enrique García Cota
+    Copyright (c) 2011 Enrique García Cota & 2020 Sebastian Erives Mejia
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the
     "Software"), to deal in the Software without restriction, including
@@ -112,7 +112,7 @@ end
 local DefaultMixin = {
   __tostring   = function(self) return "instance of " .. tostring(self.class) end,
 
-  fields = { },
+  v = { },
 
   constructor   = function(self, ...) end,
 
@@ -134,6 +134,7 @@ local DefaultMixin = {
     new = function(self, ...)
       assert(type(self) == 'table', "Make sure that you are using 'Class:new' instead of 'Class.new'")
       local instance = self:allocate()
+      self.__className = tostring(self):gsub("class ", "")
       instance:constructor(...)
       return instance
     end,
@@ -172,11 +173,11 @@ local DefaultMixin = {
   }
 }
 
-function middleclass.class(name, super)
+function oop.class(name, super)
   assert(type(name) == 'string', "A name (string) is needed for the new class")
   return super and super:subclass(name) or _includeMixin(_createClass(name), DefaultMixin)
 end
 
-setmetatable(middleclass, { __call = function(_, ...) return middleclass.class(...) end })
+setmetatable(oop, { __call = function(_, ...) return oop.class(...) end })
 
-return middleclass
+return oop

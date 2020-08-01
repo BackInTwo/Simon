@@ -1,23 +1,29 @@
 local class = require "lib/lua-oop"
 
+local maigames_stage = require "game/stages/maigames_stage"
+
+require "engine/stage_manager"
+
+local stageManager = nil
+
 function love.load()
 
     love.graphics.setBackgroundColor(0, 0, 0)
     love.window.setTitle("Maistronaut")
 
-    current_stage = require("stages/maigames_stage"):new()
+    stageManager = StageManager:new(maigames_stage:new())
 
 end
 
 function love.update(dt)
 
-    current_stage:_update(dt)
+    stageManager:getCurrentStage():_update(dt)
 
 end
 
 function love.draw()
 
-    current_stage:draw()
+    stageManager:getCurrentStage():_draw()
 
 end
 

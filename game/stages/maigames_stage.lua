@@ -3,12 +3,13 @@ local template_stage = require "game/stages/template_stage"
 
 require "engine/stage"
 require "engine/stage_object"
+require "util/math/vector"
 
-local FpsObj = class("Obj-TestObject", StageObject)
+local FpsObj = class("Obj-FpsObject", StageObject)
 
 function FpsObj:constructor()
 
-    StageObject.constructor(self)
+    StageObject.constructor(self, Vector2:new(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2))
 
 end
 
@@ -17,7 +18,9 @@ function FpsObj:draw()
     local dt = love.timer.getDelta()
 
     love.graphics.setColor(0, 0, 0, 255)
-    love.graphics.print(tostring(love.timer.getFPS() .. " " .. tostring(dt)), 5, 5)
+    love.graphics.print(tostring(love.timer.getFPS() .. " " .. tostring(dt)), self.position.x, self.position.y)
+
+    print(self.position:toString())
 
 end
 

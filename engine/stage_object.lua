@@ -1,10 +1,14 @@
 local class = require "lib/lua-oop"
 
+require "util/math/vector"
+
 StageObject = class "StageObject"
 
-function StageObject:constructor()
+function StageObject:constructor(position)
 
     self.isFirstUpdate = true
+
+    self:setPosition(position)
 
 end
 
@@ -37,5 +41,16 @@ end
 function StageObject:draw() end
 
 function StageObject:beforeChange(nextStage) end
+
+function StageObject:setPosition(position)
+
+        if position then
+            assert(type(position) == "table", "Position is not an object (StageObject)")
+            self.position = position
+        else
+            self.position = Vector2:new(0, 0)
+        end
+
+end
 
 return StageObject

@@ -1,5 +1,4 @@
 local class = require "lib/lua-oop"
-
 local Color = require "util/color"
 
 Stage = class "Stage"
@@ -19,7 +18,7 @@ function Stage:_update(dt)
 
         self:firstUpdate()
 
-        print("First update of " .. self.class.name .. " stage")
+        print("First update of " .. self.class.name .. " (stage)")
 
         self.v.firstUpdate = false
 
@@ -27,7 +26,9 @@ function Stage:_update(dt)
 
     for i, obj in ipairs(self.objects) do
         obj.parentStage = self
-        obj:_update()
+        if obj.enabled then
+            obj:_update()
+        end
     end
 
     self:update(dt)
@@ -40,7 +41,9 @@ function Stage:_firstUpdate()
 
     for i, obj in ipairs(self.objects) do
         obj.parentStage = self
-        obj:firstStageUpdate()
+        if obj.enabled then
+            obj:firstStageUpdate()
+        end
     end
 
     self:firstUpdate()
@@ -57,7 +60,9 @@ function Stage:_init()
 
     for i, obj in ipairs(self.objects) do
         obj.parentStage = self
-        obj:stageInit()
+        if obj.enabled then
+            obj:stageInit()
+        end
     end
 
     self:init()
@@ -70,7 +75,7 @@ function Stage:draw()
 
     textColor:invert():toDecimal()
 
-    love.graphics.setColor(textColor.v.r, textColor.v.g, textColor.v.b, 255)
+    love.graphics.setColor(textColor.r, textColor.g, textColor.b, 1)
     love.graphics.print("Superclass draw method called, override " .. self.class.name .. " draw(dt) from your stage class")
 
 end
@@ -79,7 +84,9 @@ function Stage:_draw()
 
     for i, obj in ipairs(self.objects) do
         obj.parentStage = self
-        obj:draw()
+        if obj.enabled then
+            obj:draw()
+        end
     end
 
     self:draw()
@@ -88,7 +95,7 @@ end
 
 function Stage:beforeChange(nextStage)
 
-    print("Default beforeChange of " .. self.class.name)
+    print("Default beforeChange of " .. self.class.name .. " (stage)")
 
 end
 
@@ -96,7 +103,9 @@ function Stage:_beforeChange(nextStage)
 
     for i, obj in ipairs(self.objects) do
         obj.parentStage = self
-        obj:beforeChange()
+        if obj.enabled then
+            obj:beforeChange()
+        end
     end
 
     self:beforeChange(nextStage)
@@ -111,6 +120,32 @@ function Stage:addObject(stageObject)
 
     table.insert(self.objects, stageObject)
 
-    print(stageObject.class.name)
+end
+
+function Stage:getObject(className)
+
+    for i, obj in ipairs(self.objects) do
+        obj.parentStage = self
+        if obj.class.name == className then
+            return obj
+        end
+    end
+
+    return nil
+
+end
+
+function Stage:getObjects(className)
+
+    local objects = {}
+
+    for i, obj in ipairs(self.objects) do
+        obj.parentStage = self
+        if obj.class.name == className then
+            table.insert(objects, obj)
+        end
+    end
+
+    return objects
 
 end

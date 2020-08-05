@@ -1,6 +1,8 @@
-local class = require "lib/lua-oop"
+local class = require "lib.lua-oop"
 
-require "engine/stage"
+require "engine.core"
+require "engine.stage"
+require "util.color"
 
 local template_stage = class("Stage-Template", Stage)
 
@@ -12,7 +14,7 @@ end
 
 function template_stage:init()
 
-    love.graphics.setBackgroundColor(255, 255, 255) -- recommended to set bg color here
+    setBackgroundColor(Color:new(255, 255, 255, 255)) -- recommended to set bg color here
 
 end
 

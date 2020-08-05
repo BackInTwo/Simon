@@ -134,7 +134,6 @@ local DefaultMixin = {
     new = function(self, ...)
       assert(type(self) == 'table', "Make sure that you are using 'Class:new' instead of 'Class.new'")
       local instance = self:allocate()
-      self.__className = tostring(self):gsub("class ", "")
       instance:constructor(...)
       return instance
     end,

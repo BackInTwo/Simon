@@ -1,4 +1,4 @@
-local class = require "lib/lua-oop"
+local class = require "lib.lua-oop"
 
 Vector2 = class "Vector2"
 

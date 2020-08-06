@@ -39,7 +39,7 @@ function love.keypressed(key, scancode, isrepeat)
 
     -- Toggle fullscreen with F11 key
     if key == "f11" and not isrepeat then
-        love.window.setFullscreen(not love.window.getFullscreen())
+        --love.window.setFullscreen(not love.window.getFullscreen())
     end
 
 end

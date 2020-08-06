@@ -1,6 +1,7 @@
 local class = require "lib.lua-oop"
 
 require "util.color"
+require "util.math.vector"
 require "engine.stage.object"
 
 -- BASIC SHAPES
@@ -37,4 +38,16 @@ function FpsObj:draw()
     love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
     love.graphics.print(tostring(love.timer.getFPS()), self.position.x, self.position.y)
 
+end
+
+MouseObj = class("Obj-Mouse", StageObject)
+
+function MouseObj:constructor()
+
+    StageObject.constructor(self, nil, Vector2:new(12, 12), nil)
+
+end
+
+function MouseObj:update()
+    self.position:set(love.mouse.getX(), love.mouse.getY())
 end

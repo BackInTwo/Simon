@@ -18,7 +18,10 @@ function StageManager:changeStage(stage)
         self.currentStage:_beforeChange(nextStage)
     end
 
+
     self.currentStage = stage
+
+    print("Change stage to " .. self.currentStage.class.name)
 
     self.currentStage.stageManager = self
 

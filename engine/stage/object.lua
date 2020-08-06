@@ -1,17 +1,21 @@
 local class = require "lib.lua-oop"
 
 require "util.math.vector"
+require "util.color"
+require "engine.stage.hitbox"
 
 StageObject = class "StageObject"
 
-function StageObject:constructor(position, color)
+function StageObject:constructor(position, size, color)
 
     self.isFirstUpdate = true
-
     self.enabled = true
+
+    self.hitbox = Hitbox:new(position, size)
 
     self:setColor(color)
     self:setPosition(position)
+    self:setSize(size)
 
 end
 
@@ -39,6 +43,8 @@ function StageObject:_update(dt)
 
     self:update(dt)
 
+    self:updateHitbox()
+
 end
 
 function StageObject:draw() end
@@ -56,17 +62,37 @@ function StageObject:setPosition(position)
 
 end
 
+function StageObject:setSize(size)
+
+        if size then
+            assert(type(size) == "table", "Size is not an object (StageObject)")
+            self.size = size
+        else
+            self.size = Vector2:new(0, 0)
+        end
+
+end
+
 function StageObject:setColor(color)
 
     if color then
-        if color.isDecimal then
-            self.color = color
-        else
-            self.color = color:clone():toDecimal()
-        end
+        self.color = color
     else
-        self.color = Color:new(255, 255, 255, 255):toDecimal()
+        self.color = Color:new(255, 255, 255, 255)
     end
+
+end
+
+function StageObject:updateHitbox()
+
+    self.hitbox.position = self.position
+    self.hitbox.size = self.size
+
+end
+
+function StageObject:isHitting(otherObject)
+
+    return self.hitbox:isHitting(otherObject.hitbox)
 
 end
 

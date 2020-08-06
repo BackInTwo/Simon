@@ -6,16 +6,12 @@ function getBackgroundColor()
 
 end
 
-function setBackgroundColor(color)
+function setBackgroundColor(r, g, b, a)
 
-    local c = nil
-
-    if color.isDecimal then
-        c = color
-    else
-        c = color:clone():toDecimal()
+    if type(r) == "table" then
+        r, g, b, a = color.getDecimal()
     end
 
-    love.graphics.setBackgroundColor(c.r, c.g, c.b, c.a)
+    love.graphics.setBackgroundColor(r, g, b, a)
 
 end

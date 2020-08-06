@@ -16,6 +16,12 @@ function Vector2:constructor(x, y, other)
         return
     end
 
+    self:set(x, y)
+
+end
+
+function Vector2:set(x, y)
+
     if x then
         assert(type(x) == "number", "x is not a number")
         self.x = x

@@ -4,11 +4,7 @@ StageManager = class "StageManager"
 
 function StageManager:constructor(initialStage)
 
-    self.currentStage = initialStage
-
-    self.currentStage.stageManager = self
-
-    self.currentStage:_init()
+    self:changeStage(initialStage)
 
 end
 

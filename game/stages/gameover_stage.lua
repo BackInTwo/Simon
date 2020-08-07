@@ -44,11 +44,9 @@ function gameover_stage:update(dt)
 
     self.stateTxtObj.text = "Game Over"
     self.statsTxtObj.text = "Plays: " .. tostring(self.plays) .. "\n" .. "Score: " .. tostring(self.score)
-    local simon_stage = require "game.stages.simon_stage"
 
     if love.keyboard.isDown("return") then
-        local simon_stage = require "game.stages.simon_stage"
-        self.stageManager:changeStage(simon_stage:new())
+        self.stageManager:changeStage("game.stages.simon_stage")
     end
 
 end

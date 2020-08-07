@@ -1,31 +1,31 @@
-local initial_stage = require "game.stages.initial_stage"
-
 require "engine.stage.manager"
 
 local stageManager = nil
 
-profilerEnabled = false
+profilerEnabled = false -- toggle on or off the profiler (wont work changing it on runtime)
 
 function love.load()
 
     love.window.setTitle("")
 
+    -- profiling stuff, attaches to love module
     love.profiler = require('lib/profile')
     love.profiler.start()
+    love.frame = 0
 
     math.randomseed(os.time() * 1000)
 
-    stageManager = StageManager:new(initial_stage:new())
+    stageManager = StageManager:new("game.stages.initial_stage")
 
 end
 
-love.frame = 0
 function love.update(dt)
 
     math.randomseed((os.time() * 1000) * (math.random(0, os.time() * 1000)))
 
     stageManager:getCurrentStage():_update(dt)
 
+    -- profiling stuff
     love.frame = love.frame + 1
     if love.frame%100 == 0 and profilerEnabled then
         love.report = love.profiler.report(30)

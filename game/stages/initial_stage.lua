@@ -34,7 +34,7 @@ function initial_stage:init()
     self.maigamesSprObj.position:set(x, y)
 
     self.timerAppear = Timer:new(3, true, true) -- 3 secs
-    self.timerDisappear = Timer:new(4, true, false) -- 4 secs
+    self.timerDisappear = Timer:new(5, true, false) -- 4 secs
     self.timerChangeStage = Timer:new(2, true, false) -- 2 secs
 
     self.timerAppear:onTimeout(function()
@@ -49,7 +49,7 @@ function initial_stage:init()
     end)
 
     self.timerChangeStage:onTimeout(function()
-        self.stageManager:changeStage(require("game.stages.simon_stage"):new())
+        self.stageManager:changeStage("game.stages.simon_stage")
     end)
 
 end

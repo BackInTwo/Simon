@@ -128,7 +128,7 @@ function simon_stage:constructor()
     self.memorizeOrderCurrentI = 0
     self.memorizeNextFrame = 0
 
-    -- states: memorize, play, wait
+    -- states: memorize, repeat, wrong, gameover
     self.state = "memorize"
     self.beforeState = ""
     self.framesCurrentState = 0
@@ -148,6 +148,11 @@ function simon_stage:init()
 
     self.stateTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 50, 20), Color:new(255, 255, 255, 255), "Memorize", 20)
     self:addObject(self.stateTxtObj)
+
+    -- load music and sounds into memory ('static')
+    self.sndNice = love.audio.newSource("game/assets/snd_nice.ogg", "static")
+    self.sndWrong = love.audio.newSource("game/assets/snd_wrong.ogg", "static")
+    self.musGameover = love.audio.newSource("game/assets/mus_gameover.ogg", "static")
 
     local winW = love.graphics.getWidth()
     local winH = love.graphics.getHeight()
@@ -258,7 +263,7 @@ function simon_stage:update()
 
             if self.memorizeOrderCurrentI > #self.order then
                 self.plays = self.plays + 1
-                if self.plays % 4 == 0 then -- every two plays there will be +1 rectangle to click
+                if self.plays % 6 == 0 then -- every two plays there will be +1 rectangle to click
                     self.orderSize = self.orderSize + 1
                 end
                 self:setState("repeat")
@@ -300,6 +305,7 @@ function simon_stage:update()
                     self.rectB:setColorGreen()
                     self.rectC:setColorGreen()
                     self.rectD:setColorGreen()
+                    self.sndNice:play()
                     self:setState("memorize") -- sucess, memorize again
                 end
             else -- failed
@@ -320,6 +326,9 @@ function simon_stage:update()
             self.rectB:setColorRed()
             self.rectC:setColorRed()
             self.rectD:setColorRed()
+            if self.lives > 0 then
+                self.sndWrong:play()
+            end
         end
 
         if self.lives <= 0 then
@@ -338,11 +347,15 @@ function simon_stage:update()
 
         self.stateTxtObj.text = "Game Over"
 
+        self.statsTxtObj.text = "Plays: " .. tostring(self.plays) .. "\n" .. "Score: " .. tostring(self.score)
+
         -- executed once
         if self:stateChanged() then
 
-            local restartTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 158, (love.graphics.getHeight() / 2) + 100), Color:new(255, 255, 255, 255), "Press ENTER to play a new game", 20)
+            local restartTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 160, (love.graphics.getHeight() / 2) + 60), Color:new(255, 255, 255, 255), "Press ENTER to play a new game", 20)
             self:addObject(restartTxtObj)
+
+            self.musGameover:play()
 
             -- reposition/hide stuff for a nice gameover screen
             -- i dont have enough time to create another stage to make this more organized
@@ -355,8 +368,8 @@ function simon_stage:update()
             self.stateTxtObj.fontSize = 50 -- gameover text in this case
             self.statsTxtObj.fontSize = 20
 
-            self.stateTxtObj.position:set((love.graphics.getWidth() / 2) - 140, (love.graphics.getHeight() / 2) - 60) -- gameover text here
-            self.statsTxtObj.position:set((love.graphics.getWidth() / 2) - 30, (love.graphics.getHeight() / 2) + 10)
+            self.stateTxtObj.position:set((love.graphics.getWidth() / 2) - 145, (love.graphics.getHeight() / 2) - 100) -- gameover text here
+            self.statsTxtObj.position:set((love.graphics.getWidth() / 2) - 40, (love.graphics.getHeight() / 2) - 15)
 
             self.stateChange = false
 

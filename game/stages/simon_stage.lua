@@ -3,6 +3,7 @@
 -- ~ serivesmejia
 
 local class = require "lib.lua-oop"
+local gameover_stage = require "game.stages.gameover_stage"
 
 require "engine.core"
 require "engine.stage"
@@ -263,7 +264,7 @@ function simon_stage:update()
 
             if self.memorizeOrderCurrentI > #self.order then
                 self.plays = self.plays + 1
-                if self.plays % 6 == 0 then -- every two plays there will be +1 rectangle to click
+                if self.plays % 6 == 0 then -- every six plays there will be +1 rectangle to click
                     self.orderSize = self.orderSize + 1
                 end
                 self:setState("repeat")
@@ -345,41 +346,7 @@ function simon_stage:update()
 
     elseif self.state == "gameover" then
 
-        self.stateTxtObj.text = "Game Over"
-
-        self.statsTxtObj.text = "Plays: " .. tostring(self.plays) .. "\n" .. "Score: " .. tostring(self.score)
-
-        -- executed once
-        if self:stateChanged() then
-
-            local restartTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 160, (love.graphics.getHeight() / 2) + 60), Color:new(255, 255, 255, 255), "Press ENTER to play a new game", 20)
-            self:addObject(restartTxtObj)
-
-            self.musGameover:play()
-
-            -- reposition/hide stuff for a nice gameover screen
-            -- i dont have enough time to create another stage to make this more organized
-
-            self.rectA.visible = false
-            self.rectB.visible = false
-            self.rectC.visible = false
-            self.rectD.visible = false
-
-            self.stateTxtObj.fontSize = 50 -- gameover text in this case
-            self.statsTxtObj.fontSize = 20
-
-            self.stateTxtObj.position:set((love.graphics.getWidth() / 2) - 145, (love.graphics.getHeight() / 2) - 100) -- gameover text here
-            self.statsTxtObj.position:set((love.graphics.getWidth() / 2) - 40, (love.graphics.getHeight() / 2) - 15)
-
-            self.stateChange = false
-
-        end
-
-        if love.keyboard.isDown("return") then
-            self.stageManager:changeStage(simon_stage:new())
-        end
-
-        self.isClickEnabled = false
+        self.stageManager:changeStage(gameover_stage:new(self.plays, self.score))
 
     else
         self.state = "memorize"

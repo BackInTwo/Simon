@@ -48,7 +48,7 @@ MouseObj = class("Obj-Mouse", StageObject)
 
 function MouseObj:constructor()
 
-    StageObject.constructor(self, nil, Vector2:new(12, 12), nil)
+    StageObject.constructor(self, nil, Vector2:new(6, 6), nil)
 
 end
 

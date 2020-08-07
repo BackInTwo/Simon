@@ -8,6 +8,9 @@ function Stage:constructor()
     self.v.firstUpdate = true
     self.objects = {}
 
+    self.mouseObj = MouseObj:new()
+    self:addObject(self.mouseObj)
+
 end
 
 function Stage:update(dt) end
@@ -73,9 +76,9 @@ function Stage:draw()
 
     local textColor = Color.fromBackgroundColor()
 
-    textColor:invert():toDecimal()
+    local r, g, b, a = textColor:invert():getDecimal()
 
-    love.graphics.setColor(textColor.r, textColor.g, textColor.b, 1)
+    love.graphics.setColor(r, g, b, 1)
     love.graphics.print("Superclass draw method called, override " .. self.class.name .. " draw(dt) from your stage class")
 
 end

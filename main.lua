@@ -4,10 +4,14 @@ require "engine.stage.manager"
 
 local stageManager = nil
 
+profilerEnabled = false
+
 function love.load()
 
     love.profiler = require('lib/profile')
     love.profiler.start()
+
+    math.randomseed(os.time())
 
     stageManager = StageManager:new(initial_stage:new())
 
@@ -16,14 +20,18 @@ end
 love.frame = 0
 function love.update(dt)
 
+    math.randomseed(os.time() * math.random(0, os.time()))
+
     stageManager:getCurrentStage():_update(dt)
 
     love.frame = love.frame + 1
-      if love.frame%100 == 0 then
+    if love.frame%100 == 0 and profilerEnabled then
         love.report = love.profiler.report(30)
         print(love.report or "Please wait...")
         love.profiler.reset()
-     end
+    elseif not profilerEnabled then
+        love.profiler.stop()
+    end
 
 end
 

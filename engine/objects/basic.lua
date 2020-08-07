@@ -51,3 +51,30 @@ end
 function MouseObj:update()
     self.position:set(love.mouse.getX(), love.mouse.getY())
 end
+
+TextObj = class("Obj-Text", StageObject)
+
+function TextObj:constructor(position, color, text, fontSize)
+
+    StageObject.constructor(self, position, nil, color)
+
+    if not fontSize then
+        fontSize = 12
+    end
+
+    if not text then
+        text = ""
+    end
+
+    self.text = text
+    self.fontSize = fontSize
+
+end
+
+function TextObj:draw()
+
+    love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
+    love.graphics.setNewFont(self.fontSize)
+    love.graphics.print(tostring(self.text), self.position.x, self.position.y)
+
+end

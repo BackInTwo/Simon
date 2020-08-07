@@ -12,6 +12,7 @@ function StageObject:constructor(position, size, color)
     self.enabled = true
     self.visible = true
 
+    self.rotation = 0
     self.hitbox = Hitbox:new(position, size)
 
     self:setColor(color)
@@ -69,7 +70,7 @@ function StageObject:setSize(size)
             assert(type(size) == "table", "Size is not an object (StageObject)")
             self.size = size
         else
-            self.size = Vector2:new(0, 0)
+            self.size = Vector2:new(400, 200)
         end
 
 end

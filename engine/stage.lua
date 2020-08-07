@@ -1,5 +1,7 @@
-local class = require "lib/lua-oop"
-local Color = require "util/color"
+local class = require "lib.lua-oop"
+local Color = require "util.color"
+
+require "engine.objects.basic"
 
 Stage = class "Stage"
 

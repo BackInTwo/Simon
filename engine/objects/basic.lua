@@ -2,6 +2,7 @@ local class = require "lib.lua-oop"
 
 require "util.color"
 require "util.math.vector"
+require "engine.core"
 require "engine.stage.object"
 
 -- BASIC SHAPES
@@ -24,6 +25,42 @@ function RectangleObj:draw()
 
     love.graphics.setColor(r, g, b, a)
     love.graphics.rectangle("fill", self.position.x, self.position.y, self.size.x, self.size.y)
+
+end
+
+StaticSpriteObj = class("Obj-StaticSprite", StageObject)
+
+function StaticSpriteObj:constructor(position, size, color, image)
+
+    StageObject.constructor(self, position, size, color)
+
+    self.image = image
+
+end
+
+function StaticSpriteObj:init()
+
+    if type(self.image) == "string" then
+        self.image = love.graphics.newImage(self.image)
+    end
+
+end
+
+function StaticSpriteObj:draw()
+
+    local r, g, b, a = self.color:getDecimal()
+
+    local scaleX, scaleY = getImageScaleForNewDimensions(self.image, self.size.x, self.size.y)
+
+    love.graphics.setColor(r, g, b, a)
+    love.graphics.draw(self.image, self.position.x, self.position.y, nil, scaleX, scaleY)
+
+end
+
+function StaticSpriteObj:setOriginalDimensions()
+
+    local w, h = self.image:getDimensions()
+    self.size:set(w, h)
 
 end
 

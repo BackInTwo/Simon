@@ -8,10 +8,12 @@ profilerEnabled = false
 
 function love.load()
 
+    love.window.setTitle("")
+
     love.profiler = require('lib/profile')
     love.profiler.start()
 
-    math.randomseed(os.time())
+    math.randomseed(os.time() * 1000)
 
     stageManager = StageManager:new(initial_stage:new())
 
@@ -20,7 +22,7 @@ end
 love.frame = 0
 function love.update(dt)
 
-    math.randomseed(os.time() * math.random(0, os.time()))
+    math.randomseed((os.time() * 1000) * (math.random(0, os.time() * 1000)))
 
     stageManager:getCurrentStage():_update(dt)
 

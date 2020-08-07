@@ -15,3 +15,10 @@ function setBackgroundColor(r, g, b, a)
     love.graphics.setBackgroundColor(r/255, g/255, b/255, a/255)
 
 end
+
+function getImageScaleForNewDimensions( image, newWidth, newHeight )
+    
+    local currentWidth, currentHeight = image:getDimensions()
+    return ( newWidth / currentWidth ), ( newHeight / currentHeight )
+
+end

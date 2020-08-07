@@ -14,10 +14,15 @@ end
 
 function StageManager:changeStage(stage)
 
+    if type(stage) == "string" then
+        stage = require(stage):new()
+    end
+
+    assert(type(stage) == "string" or type(stage) == "table", "Stage is not a string path or an object (StageManager)")
+
     if self.currentStage then
         self.currentStage:_beforeChange(nextStage)
     end
-
 
     self.currentStage = stage
 

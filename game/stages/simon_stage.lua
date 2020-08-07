@@ -13,7 +13,7 @@ require "engine.objects.basic"
 require "util.color"
 require "util.math.vector"
 
-require "util/util"
+require "util"
 
 local SimonRectangleObj = class("Obj-SimonRectangle", RectangleObj)
 
@@ -85,21 +85,15 @@ function SimonRectangleObj:highlight(frames, playSound)
 end
 
 function SimonRectangleObj:setColorGreen()
-
     self.currColor = self.greenColor
-
 end
 
 function SimonRectangleObj:setColorRed()
-
     self.currColor = self.redColor
-
 end
 
 function SimonRectangleObj:setColorOriginal()
-
     self.currColor = self.defColor
-
 end
 
 local simon_stage = class("Stage-Simon", Stage)
@@ -141,19 +135,17 @@ function simon_stage:init()
 
     setBackgroundColor(0, 0, 0, 255) -- better look
 
-    self.mouseObj = MouseObj:new()
-    self:addObject(self.mouseObj)
-
     self.statsTxtObj = TextObj:new(nil, Color:new(255, 255, 255, 255), "", 20)
     self:addObject(self.statsTxtObj)
 
     self.stateTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 50, 20), Color:new(255, 255, 255, 255), "Memorize", 20)
     self:addObject(self.stateTxtObj)
 
-    -- load music and sounds into memory ('static')
-    self.sndNice = love.audio.newSource("game/assets/snd_nice.ogg", "static")
-    self.sndWrong = love.audio.newSource("game/assets/snd_wrong.ogg", "static")
-    self.musGameover = love.audio.newSource("game/assets/mus_gameover.ogg", "static")
+    -- load sounds into memory ('static')
+    self.sndNice = love.audio.newSource("game/assets/snd_nice.ogg", "stream")
+    self.sndWrong = love.audio.newSource("game/assets/snd_wrong.ogg", "stream")
+    self.sndRepeat = love.audio.newSource("game/assets/snd_repeat.ogg", "stream")
+    self.sndRepeat:setVolume(0.3)
 
     local winW = love.graphics.getWidth()
     local winH = love.graphics.getHeight()
@@ -164,38 +156,42 @@ function simon_stage:init()
     -- simon rectangles setup
     -- beware, messy code ahead.
 
+    -- rect A
     local posA = Vector2:new(winW / 4, winH / 6)
     self.rectA = SimonRectangleObj:new(posA, size, Color:new(255, 0, 0, 255), clickColor, self.mouseObj)
     self:addObject(self.rectA)
 
-    self.rectA.snd = love.audio.newSource("game/assets/snd_rectA.ogg", "static")
+    self.rectA.snd = love.audio.newSource("game/assets/snd_rectA.ogg", "stream")
     self.rectA.onClick = function()
         table.insert(self.clickOrder, 1)
     end
 
+    -- rect B
     local posB = Vector2:new(winW / 4 + size.x + 10, winH / 6)
     self.rectB = SimonRectangleObj:new(posB, size, Color:new(255, 242, 3, 255), clickColor, self.mouseObj)
     self:addObject(self.rectB)
 
-    self.rectB.snd = love.audio.newSource("game/assets/snd_rectB.ogg", "static")
+    self.rectB.snd = love.audio.newSource("game/assets/snd_rectB.ogg", "stream")
     self.rectB.onClick = function()
         table.insert(self.clickOrder, 2)
     end
 
+    -- rect C
     local posC = Vector2:new(winW / 4, winH / 6 + 212)
     self.rectC = SimonRectangleObj:new(posC, size, Color:new(0, 0, 255, 255), clickColor, self.mouseObj)
     self:addObject(self.rectC)
 
-    self.rectC.snd = love.audio.newSource("game/assets/snd_rectC.ogg", "static")
+    self.rectC.snd = love.audio.newSource("game/assets/snd_rectC.ogg", "stream")
     self.rectC.onClick = function()
         table.insert(self.clickOrder, 3)
     end
 
+    -- rect D
     local posD = Vector2:new(winW / 4 + size.x + 10, winH / 6 + 212)
     self.rectD = SimonRectangleObj:new(posD, size, Color:new(21, 189, 21, 255), clickColor, self.mouseObj)
     self:addObject(self.rectD)
 
-    self.rectD.snd = love.audio.newSource("game/assets/snd_rectD.ogg", "static")
+    self.rectD.snd = love.audio.newSource("game/assets/snd_rectD.ogg", "stream")
     self.rectD.onClick = function()
         table.insert(self.clickOrder, 4)
     end
@@ -234,8 +230,9 @@ function simon_stage:update()
 
             self.memorizeNextFrame = self.framesCurrentState + 80
             self.memorizeOrderCurrentI = 0
-            self.stateChange = false
             self.firstDoMemorize = true
+
+            self.stateChange = false
 
         end
 
@@ -284,6 +281,7 @@ function simon_stage:update()
         -- executed once
         if self:stateChanged() then
             self.clickOrder = {}
+            self.sndRepeat:play() -- play a cute sound effect uwu
             self.repeatMaxTimeSecs = os.time() + math.floor((self.orderSize * 1.7)+0.5) -- timer
             self.stateChange = false
         end
@@ -320,36 +318,35 @@ function simon_stage:update()
 
         -- executed once
         if self:stateChanged() then
-            self.lives = self.lives - 1
-            self.framesMemorizeState = self.framesCurrentState + 100
+            self.lives = self.lives - 1 -- remove 1 live
+            self.framesMemorizeState = self.framesCurrentState + 100 -- frames to go back to memorize state (100)
+
             self.stateChange = false
+
             self.rectA:setColorRed()
             self.rectB:setColorRed()
             self.rectC:setColorRed()
             self.rectD:setColorRed()
-            if self.lives > 0 then
+
+            if self.lives > 0 then -- if not gameover
                 self.sndWrong:play()
             end
         end
 
-        if self.lives <= 0 then
-            self:setState("gameover")
-        else
-            self.stateTxtObj.text = "  Wrong!"
+        if self.lives <= 0 then -- gameover
+            self.stageManager:changeStage(gameover_stage:new(self.plays, self.score)) -- change to gameover stage
+        else -- not gameover
+            self.stateTxtObj.text = "  Wrong!" -- change the state txt to this
         end
 
         if self.framesCurrentState >= self.framesMemorizeState then
-            self:setState("memorize")
+            self:setState("memorize") -- set state to memorize after 100 frames
         end
 
         self.isClickEnabled = false
 
-    elseif self.state == "gameover" then
-
-        self.stageManager:changeStage(gameover_stage:new(self.plays, self.score))
-
     else
-        self.state = "memorize"
+        self.state = "memorize" -- set state to memorize if the current state is invalid
     end
 
     self.framesCurrentState = self.framesCurrentState + 1
@@ -357,9 +354,7 @@ function simon_stage:update()
 
 end
 
-function simon_stage:draw()
-
-end
+function simon_stage:draw() end
 
 function simon_stage:stateChanged()
 

@@ -16,6 +16,10 @@ end
 
 function RectangleObj:draw()
 
+    if not self.visible then
+        return
+    end
+
     local r, g, b, a = self.color:getDecimal()
 
     love.graphics.setColor(r, g, b, a)

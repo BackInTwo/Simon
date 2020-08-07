@@ -1,6 +1,6 @@
 local class = require "lib.lua-oop"
 
-require "util/math/util"
+require "util/math"
 
 Color = class "Color"
 

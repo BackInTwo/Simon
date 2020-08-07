@@ -9,3 +9,7 @@ function clip(value, min, max)
     return value
 
 end
+
+function round(value)
+    math.floor((self.orderSize * 1.7)+0.5)
+end

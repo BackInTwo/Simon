@@ -1,5 +1,6 @@
 -- el codigo es un desastre, lo se, sorry :c
 -- pero funciona :)
+-- ~ serivesmejia
 
 local class = require "lib.lua-oop"
 
@@ -22,6 +23,8 @@ function SimonRectangleObj:constructor(position, size, color, clickColor, mouseO
     self.defColor = color:set(color.r, color.g, color.b, 255)
     self.clickColor = clickColor
 
+    self.currColor = color
+
     self.doHighlight = false
     self.highlightFrames = 0
     self.highlightFramesC = 0
@@ -39,12 +42,15 @@ function SimonRectangleObj:update(dt)
     local ab = a and self.parentStage.mouseIsPrimaryDown -- if mouse is inside the rectangle and mouse primary is clicked
     local cd = self.parentStage.isClickEnabled and not self.parentStage.alreadyClickedOne -- better look stuff
 
+    self.greenColor = Color:new(21, 189, 21, 255)
+    self.redColor = Color:new(255, 0, 0, 255)
+
     -- highlighting the rectangle
     if ab and cd or self.doHighlight then
         self.color = self.clickColor
         self.parentStage.alreadyClickedOne = true
     else
-        self.color = self.defColor
+        self.color = self.currColor
         self.parentStage.alreadyClickedOne = false
     end
 
@@ -77,13 +83,33 @@ function SimonRectangleObj:highlight(frames, playSound)
 
 end
 
+function SimonRectangleObj:setColorGreen()
+
+    self.currColor = self.greenColor
+
+end
+
+function SimonRectangleObj:setColorRed()
+
+    self.currColor = self.redColor
+
+end
+
+function SimonRectangleObj:setColorOriginal()
+
+    self.currColor = self.defColor
+
+end
+
 local simon_stage = class("Stage-Simon", Stage)
 
+-- stage constructor
+-- declare all variables here
 function simon_stage:constructor()
 
     Stage.constructor(self)
 
-    self.lives = 5
+    self.lives = 5 -- default 5, don't forget
     self.score = 0
 
     self.mousePrimaryDownC = 0
@@ -130,6 +156,7 @@ function simon_stage:init()
     local clickColor = Color:new(255, 255, 255, 255)
 
     -- simon rectangles setup
+    -- beware, messy code ahead.
 
     local posA = Vector2:new(winW / 4, winH / 6)
     self.rectA = SimonRectangleObj:new(posA, size, Color:new(255, 0, 0, 255), clickColor, self.mouseObj)
@@ -141,7 +168,7 @@ function simon_stage:init()
     end
 
     local posB = Vector2:new(winW / 4 + size.x + 10, winH / 6)
-    self.rectB = SimonRectangleObj:new(posB, size, Color:new(0, 255, 0, 255), clickColor, self.mouseObj)
+    self.rectB = SimonRectangleObj:new(posB, size, Color:new(255, 242, 3, 255), clickColor, self.mouseObj)
     self:addObject(self.rectB)
 
     self.rectB.snd = love.audio.newSource("game/assets/snd_rectB.ogg", "static")
@@ -202,11 +229,20 @@ function simon_stage:update()
             self.memorizeNextFrame = self.framesCurrentState + 80
             self.memorizeOrderCurrentI = 0
             self.stateChange = false
+            self.firstDoMemorize = true
 
         end
 
         -- highlighting the next simon rect every 60 frames
         if self.framesCurrentState >= self.memorizeNextFrame then
+
+            if self.firstDoMemorize then
+                self.firstDoMemorize = false
+                self.rectA:setColorOriginal()
+                self.rectB:setColorOriginal()
+                self.rectC:setColorOriginal()
+                self.rectD:setColorOriginal()
+            end
 
             local toHighlightRect = self.order[self.memorizeOrderCurrentI]
 
@@ -237,41 +273,59 @@ function simon_stage:update()
 
     elseif self.state == "repeat" then
 
-        self.stateTxtObj.text = "Repeat"
+        self.stateTxtObj.text = "  Repeat"
 
         -- executed once
         if self:stateChanged() then
             self.clickOrder = {}
+            self.repeatMaxTimeSecs = os.time() + math.floor((self.orderSize * 1.7)+0.5) -- timer
             self.stateChange = false
         end
 
+        local remainingTime = self.repeatMaxTimeSecs - os.time() -- delta between future timeout and current time
+
+        if remainingTime < 0 then -- time's out
+            self:setState("wrong")
+        else -- still have some time
+            self.stateTxtObj.text = self.stateTxtObj.text .. "\n       " .. tostring(remainingTime)
+        end
+
         local i = #self.clickOrder
+
         if not (i == 0) then -- at least 1 rectangle clicked
             if self.order[i] == self.clickOrder[i] then -- currently success
                 if i == #self.order then -- all clicked successfully
                     self.score = self.score + (50 * self.orderSize) -- add +50 score for each rectangle clicked
+                    self.rectA:setColorGreen()
+                    self.rectB:setColorGreen()
+                    self.rectC:setColorGreen()
+                    self.rectD:setColorGreen()
                     self:setState("memorize") -- sucess, memorize again
                 end
             else -- failed
-                self:setState("minusonelive") -- wrong clicked
+                self:setState("wrong") -- wrong clicked
             end
         end
 
         self.isClickEnabled = true
 
-    elseif self.state == "minusonelive" then
+    elseif self.state == "wrong" then
 
         -- executed once
         if self:stateChanged() then
             self.lives = self.lives - 1
             self.framesMemorizeState = self.framesCurrentState + 100
             self.stateChange = false
+            self.rectA:setColorRed()
+            self.rectB:setColorRed()
+            self.rectC:setColorRed()
+            self.rectD:setColorRed()
         end
 
-        if self.lives == 0 then
+        if self.lives <= 0 then
             self:setState("gameover")
         else
-            self.stateTxtObj.text = "Wrong!"
+            self.stateTxtObj.text = "  Wrong!"
         end
 
         if self.framesCurrentState >= self.framesMemorizeState then
@@ -286,7 +340,30 @@ function simon_stage:update()
 
         -- executed once
         if self:stateChanged() then
+
+            local restartTxtObj = TextObj:new(Vector2:new((love.graphics.getWidth() / 2) - 158, (love.graphics.getHeight() / 2) + 100), Color:new(255, 255, 255, 255), "Press ENTER to play a new game", 20)
+            self:addObject(restartTxtObj)
+
+            -- reposition/hide stuff for a nice gameover screen
+            -- i dont have enough time to create another stage to make this more organized
+
+            self.rectA.visible = false
+            self.rectB.visible = false
+            self.rectC.visible = false
+            self.rectD.visible = false
+
+            self.stateTxtObj.fontSize = 50 -- gameover text in this case
+            self.statsTxtObj.fontSize = 20
+
+            self.stateTxtObj.position:set((love.graphics.getWidth() / 2) - 140, (love.graphics.getHeight() / 2) - 60) -- gameover text here
+            self.statsTxtObj.position:set((love.graphics.getWidth() / 2) - 30, (love.graphics.getHeight() / 2) + 10)
+
             self.stateChange = false
+
+        end
+
+        if love.keyboard.isDown("return") then
+            self.stageManager:changeStage(simon_stage:new())
         end
 
         self.isClickEnabled = false

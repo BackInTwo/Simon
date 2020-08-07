@@ -10,6 +10,7 @@ function StageObject:constructor(position, size, color)
 
     self.isFirstUpdate = true
     self.enabled = true
+    self.visible = true
 
     self.hitbox = Hitbox:new(position, size)
 
